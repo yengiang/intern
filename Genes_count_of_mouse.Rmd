@@ -1,0 +1,394 @@
+---
+title: "Genes count of mouse"
+output: html_document
+date: "2024-06-25"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Xenium
+
+```{r violin plots + summary}
+
+# IM 325 plots + summary
+VlnPlot(`im_325_h _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("im_325_g")
+ggsave("im_325_h.pdf")
+summary(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM 326 plots + summary
+VlnPlot(`im_326_f _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("im_326_f")
+ggsave("im_326_f.pdf")
+summary(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM 327 plots + summary
+VlnPlot(`im_327_i _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("im_327_i")
+ggsave("im_327_i.pdf")
+summary(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM 328 plots + summary
+VlnPlot(`im_328_g _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("im_328_g")
+ggsave("im_328_g.pdf")
+summary(`im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
+
+```{r boxplots}
+# IM 325
+boxplot(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], ylab = "Genes per cell", xlab = "IM 325", ylim = c(0, 800))
+boxplot(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]], ylab = "Unique genes per cell", xlab = "IM 325")
+
+# IM 326
+boxplot(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]], ylab = "Genes per cell", xlab = "IM 326", ylim = c(0, 800))
+boxplot(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]], ylab = "Unique genes per cell", xlab = "IM 326")
+
+# IM 327
+boxplot(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]], ylab = "Genes per cell", xlab = "IM 327", ylim = c(0, 800))
+boxplot(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]], ylab = "Unique genes per cell", xlab = "IM 327")
+
+# IM 328
+boxplot(`im_328_g _Seurat`@meta.data[["nCount_Xenium"]], ylab = "Genes per cell", xlab = "IM 328", ylim = c(0, 800))
+boxplot(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]], ylab = "Unique genes per cell", xlab = "IM 328")
+```
+
+
+nCount_Xenium
+
+
+```{r check for multimodality}
+# Instal packages
+install.packages("diptest")
+install.packages("moments")
+
+# Load library
+library(diptest)
+library(moments)
+
+# Make density plots
+plot(density(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]]), main = "Density Plot of im_325_h", xlab = "Value")
+plot(density(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]]), main = "Density Plot of im_326_f", xlab = "Value")
+
+plot(density(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]]), main = "Density Plot of im_327_i", xlab = "Value")
+
+plot(density(`im_328_g _Seurat`@meta.data[["nCount_Xenium"]]), main = "Density Plot of im_328_g", xlab = "Value")
+
+# Hartigans' dip test
+dip.test(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]])
+dip.test(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]])
+dip.test(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]])
+dip.test(`im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+
+```
+
+CHECK THE DIFFERENCE FOR nCount_Xenium IN EACH BRAIN
+
+```{r permutation test 1}
+
+count_im325 <- as.integer(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]])
+count_im326 <- as.integer(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]])
+
+# Compute mean difference
+observed <- mean(count_im326) - mean(count_im325)
+observed
+
+# Obtain sample size
+m <- length(count_im326)
+m
+n <- length(count_im325)
+n
+
+set.seed(1)
+B <- 1000
+result <- numeric(B)
+
+# Perform the permutation test
+for (i in 1:B) {
+  # Sample indices for count_im326
+  index_im326 <- sample(m, size = 1000, replace = FALSE)
+  # Sample indices for count_im325
+  index_im325 <- sample(n, size = 1000, replace = FALSE)
+  
+  # Calculate mean differences
+  mean_diff_im326 <- mean(count_im326[index_im326])
+  mean_diff_im325 <- mean(count_im325[index_im325])
+  
+  result[i] <- mean_diff_im326 - mean_diff_im325
+}
+
+# Create permutation histogram
+hist(result) 
+abline(v = observed, lty = 2, col = "blue")
+
+# Compute the p-value
+2*(sum(result >= observed)+1)/(B + 1)
+
+```
+
+
+
+```{r permutation test 2}
+
+count_im325 <- as.numeric(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]])
+count_im326 <- as.numeric(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]])
+ 
+# Compute mean difference
+observed <- mean(count_im326) - mean(count_im325)
+observed
+ 
+# Obtain sample size
+m <- length(count_im326)
+m
+n <- length(count_im325)
+n
+ 
+# Set number of permutations
+B <- 100
+ 
+set.seed(10000)
+result <- numeric(B)
+ 
+# Create the permutation distribution
+for(i in 1:B) {
+   index <- sample(m+n, size = 1000, replace = FALSE)
+   valid_index <- index[index <= m]
+   result[i] <- mean(count_im326[valid_index]) - mean(count_im325[-valid_index])
+}
+ 
+# Create permutation histogram
+hist(result) 
+abline(v = observed, lty = 2, col = "blue")
+ 
+# Compute the p-value
+2*(sum(result >= observed)+1)/(B + 1)
+```
+
+
+
+```{r Mann-Whitney U Test}
+
+# IM325 vs IM326
+wilcox.test(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], `im_326_f _Seurat`@meta.data[["nCount_Xenium"]])
+
+# IM325 vs IM327
+wilcox.test(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], `im_327_i _Seurat`@meta.data[["nCount_Xenium"]])
+
+# IM325 vs IM328
+wilcox.test(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], `im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+
+# IM326 vs IM327
+wilcox.test(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]], `im_327_i _Seurat`@meta.data[["nCount_Xenium"]])
+
+# IM326 vs IM328
+wilcox.test(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]], `im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+
+# IM327 vs IM328
+wilcox.test(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]], `im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+
+```
+
+
+```{r checking}
+
+
+vec1<-c()
+vec2<-c()
+for(i in 10:100){
+
+vec1<-perm.test(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], `im_326_f _Seurat`@meta.data[["nCount_Xenium"]], alternative = c("two.sided"), mu = mean(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]]) - mean(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]]), paired = FALSE, all.perms = TRUE, num.sim = i)
+
+ vec2<-c(vec1,vec2) 
+ print(i)
+}
+  
+```
+
+
+
+nFeature_Xenium
+
+
+
+```{r check for multimodality}
+
+# Load library
+library(diptest)
+library(moments)
+
+# Make density plots
+plot(density(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]]), main = "Density Plot of im_325_h", xlab = "Value")
+plot(density(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]]), main = "Density Plot of im_326_f", xlab = "Value")
+
+plot(density(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]]), main = "Density Plot of im_327_i", xlab = "Value")
+
+plot(density(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]]), main = "Density Plot of im_328_g", xlab = "Value")
+
+# Hartigans' dip test
+dip.test(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]])
+dip.test(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])
+dip.test(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])
+dip.test(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
+CHECK THE DIFFERENCE FOR nFeature_Xenium IN EACH BRAIN
+
+
+
+```{r code 1 for permutation test}
+count_im325 <- as.integer(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]])
+count_im326 <- as.integer(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# Compute mean difference
+observed <- mean(count_im326) - mean(count_im325)
+observed
+
+# Obtain sample size
+m <- length(count_im326)
+m
+n <- length(count_im325)
+n
+
+set.seed(1)
+B <- 1000
+result <- numeric(B)
+
+# Perform the permutation test
+for (i in 1:B) {
+  # Sample indices for count_im326
+  index_im326 <- sample(m, size = 1000, replace = FALSE)
+  # Sample indices for count_im325
+  index_im325 <- sample(n, size = 1000, replace = FALSE)
+  
+  # Calculate mean differences
+  mean_diff_im326 <- mean(count_im326[index_im326])
+  mean_diff_im325 <- mean(count_im325[index_im325])
+  
+  result[i] <- mean_diff_im326 - mean_diff_im325
+}
+
+# Create permutation histogram
+hist(result) 
+abline(v = observed, lty = 2, col = "blue")
+
+# Compute the p-value
+2*(sum(result >= observed)+1)/(B + 1)
+
+```
+
+
+
+```{r permutation test code 2}
+
+count_im325 <- as.numeric(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]])
+count_im326 <- as.numeric(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])
+ 
+# Compute mean difference
+observed <- mean(count_im326) - mean(count_im325)
+observed
+ 
+# Obtain sample size
+m <- length(count_im326)
+m
+n <- length(count_im325)
+n
+ 
+# Set number of permutations
+B <- 100
+ 
+set.seed(10000)
+result <- numeric(B)
+ 
+# Create the permutation distribution
+for(i in 1:B) {
+   index <- sample(m+n, size = 1000, replace = FALSE)
+   valid_index <- index[index <= m]
+   result[i] <- mean(count_im326[valid_index]) - mean(count_im325[-valid_index])
+}
+ 
+# Create permutation histogram
+hist(result) 
+abline(v = observed, lty = 2, col = "blue")
+ 
+# Compute the p-value
+2*(sum(result >= observed)+1)/(B + 1)
+```
+
+
+```{r Mann-Whitney U Test}
+
+# IM325 vs IM326
+wilcox.test(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]], `im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM325 vs IM327
+wilcox.test(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]], `im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM325 vs IM328
+wilcox.test(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]], `im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM326 vs IM327
+wilcox.test(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]], `im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM326 vs IM328
+wilcox.test(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]], `im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM327 vs IM328
+wilcox.test(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]], `im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
+QUANTITATIVE COMPARISON
+
+Unique genes per panel
+
+```{r unique genes per panel}
+
+# IM 325
+(mean(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]])/247)*100
+
+# IM 326
+(mean(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]])/247)*100
+
+# IM 327
+(mean(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])/247)*100
+
+# IM 328
+(mean(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])/247)*100
+
+```
+
+
+Average amount of unique genes over total count per cell
+
+```{r total genes per cell over unique genes per cell}
+
+# IM 325
+(mean(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]])/mean(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]]))
+
+# IM 326
+(mean(`im_326_f _Seurat`@meta.data[["nCount_Xenium"]])/mean(`im_326_f _Seurat`@meta.data[["nFeature_Xenium"]]))
+
+# IM 327
+mean(`im_327_i _Seurat`@meta.data[["nCount_Xenium"]])/mean(`im_327_i _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# IM 328
+mean(`im_328_g _Seurat`@meta.data[["nCount_Xenium"]])/mean(`im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
+
+
+
+
+
