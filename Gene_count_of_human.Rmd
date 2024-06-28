@@ -1,0 +1,177 @@
+---
+title: "Quantitative analysis of human"
+output: html_document
+date: "2024-06-27"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r violin plots + summary}
+
+# 1639 CI plots + summary
+VlnPlot(`16_39ci_b _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("16_39ci_b")
+ggsave("16_39ci_b.pdf")
+summary(`16_39ci_b _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`16_39ci_b _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# 1750 CI plots + summary
+VlnPlot(`17_50ci_c _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("17_50ci_c")
+ggsave("17_50ci_c.pdf")
+summary(`17_50ci_c _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`17_50ci_c _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# 1817 CI plots + summary
+VlnPlot(`18_17ci_f _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("18_17ci_f")
+ggsave("18_17ci_f.pdf")
+summary(`18_17ci_f _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`18_17ci_f _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# 1931 CI plots + summary
+VlnPlot(`19_31ci_e _Seurat`, features = c("nFeature_Xenium", "nCount_Xenium"), ncol = 2, pt.size = 0) & ggtitle("19_31ci_e")
+ggsave("19_31ci_e.pdf")
+summary(`19_31ci_e _Seurat`@meta.data[["nCount_Xenium"]])
+summary(`19_31ci_e _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
+# nCount_Xenium
+
+
+## Data exploratory - distribution
+
+```{r histogram}
+
+# 1639 ci
+hist(`16_39ci_b _Seurat`@meta.data[["nCount_Xenium"]], breaks = 200)
+
+# 1750 ci
+hist(`17_50ci_c _Seurat`@meta.data[["nCount_Xenium"]], breaks = 200)
+
+# 1817 ci
+hist(`18_17ci_f _Seurat`@meta.data[["nCount_Xenium"]], breaks = 200)
+
+# 1931 ci
+hist(`19_31ci_e _Seurat`@meta.data[["nCount_Xenium"]], breaks = 200)
+
+```
+
+
+### Checking the distribution of data
+
+```{r download packages}
+
+install.packages("fitdistrplus")
+install.packages("logspline")
+
+library(fitdistrplus)
+library(logspline)
+
+```
+
+
+```{r graph Cullen and Fray plot}
+
+# 1639 ci
+descdist(`16_39ci_b _Seurat`@meta.data[["nCount_Xenium"]], boot = 1000)
+
+# 1750 ci
+descdist(`17_50ci_c _Seurat`@meta.data[["nCount_Xenium"]], boot = 1000)
+
+# 1817 ci
+descdist(`18_17ci_f _Seurat`@meta.data[["nCount_Xenium"]], boot = 1000)
+
+# 1931 ci
+descdist(`19_31ci_e _Seurat`@meta.data[["nCount_Xenium"]], boot = 1000)
+
+```
+
+
+# nFeature_Xenium
+
+## Data exloratory - distribution
+
+```{r histogram}
+
+# 1639 ci
+hist(`16_39ci_b _Seurat`@meta.data[["nFeature_Xenium"]], breaks = 200)
+
+# 1750 ci
+hist(`17_50ci_c _Seurat`@meta.data[["nFeature_Xenium"]], breaks = 200)
+
+# 1817 ci
+hist(`18_17ci_f _Seurat`@meta.data[["nFeature_Xenium"]], breaks = 200)
+
+# 1931 ci
+hist(`19_31ci_e _Seurat`@meta.data[["nFeature_Xenium"]], breaks = 200)
+
+```
+
+
+
+### Checking the distribution of data
+
+```{r graph Cullen and Fray plot}
+
+# 1639 ci
+descdist(`16_39ci_b _Seurat`@meta.data[["nFeature_Xenium"]], boot = 1000)
+
+# 1750 ci
+descdist(`17_50ci_c _Seurat`@meta.data[["nFeature_Xenium"]], boot = 1000)
+
+# 1817 ci
+descdist(`18_17ci_f _Seurat`@meta.data[["nFeature_Xenium"]], boot = 1000)
+
+# 1931 ci
+descdist(`19_31ci_e _Seurat`@meta.data[["nFeature_Xenium"]], boot = 1000)
+
+```
+
+
+
+## QUANTITATIVE COMPARISON
+
+### Unique genes per panel
+
+```{r unique genes per panel}
+
+# 1639 ci
+(mean(`16_39ci_b _Seurat`@meta.data[["nFeature_Xenium"]])/266)*100
+
+# 1750 ci
+(mean(`17_50ci_c _Seurat`@meta.data[["nFeature_Xenium"]])/266)*100
+
+# 1817 ci
+(mean(`18_17ci_f _Seurat`@meta.data[["nFeature_Xenium"]])/266)*100
+
+# 1931 ci
+(mean(`19_31ci_e _Seurat`@meta.data[["nFeature_Xenium"]])/266)*100
+
+```
+
+
+### Average amount of unique genes over total count per cell
+
+```{r total genes per cell over unique genes per cell}
+
+# 1639 ci
+(mean(`16_39ci_b _Seurat`@meta.data[["nCount_Xenium"]])/mean(`16_39ci_b _Seurat`@meta.data[["nFeature_Xenium"]]))
+
+# 1750 ci
+(mean(`17_50ci_c _Seurat`@meta.data[["nCount_Xenium"]])/mean(`17_50ci_c _Seurat`@meta.data[["nFeature_Xenium"]]))
+
+# 1817 ci
+mean(`18_17ci_f _Seurat`@meta.data[["nCount_Xenium"]])/mean(`18_17ci_f _Seurat`@meta.data[["nFeature_Xenium"]])
+
+# 1931 ci
+mean(`19_31ci_e _Seurat`@meta.data[["nCount_Xenium"]])/mean(`19_31ci_e _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+
