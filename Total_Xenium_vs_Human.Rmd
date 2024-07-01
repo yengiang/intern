@@ -1,0 +1,145 @@
+---
+title: "Total Xenium vs CosMx"
+output: html_document
+date: "2024-06-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# CosMx
+
+## nCount_Nanostring
+
+```{r download packages}
+
+# Instal packages
+install.packages("diptest")
+install.packages("moments")
+
+# Load library
+library(diptest)
+library(moments)
+
+```
+
+
+
+```{r check for distribution}
+# Histogram
+hist(seurat_object_082323@meta.data[["nCount_SCT"]], breaks = 100)
+
+# Make density plots
+plot(density(seurat_object_082323@meta.data[["nCount_SCT"]]), main = "Density Plot of CosMx", xlab = "Value")
+
+# Do Hartigans' dip test
+dip.test(seurat_object_082323@meta.data[["nCount_SCT"]])
+
+
+```
+
+
+## nFeature_Nanostring
+
+```{r check for distribution}
+# Histogram
+hist(seurat_object_082323@meta.data[["nFeature_SCT"]], breaks = 100)
+
+# Make density plots
+plot(density(seurat_object_082323@meta.data[["nFeature_SCT"]]), main = "Density Plot of CosMx", xlab = "Value")
+
+# Do Hartigans' dip test
+dip.test(seurat_object_082323@meta.data[["nFeature_SCT"]])
+
+```
+
+## Unique genes / panel
+
+```{r}
+# Summary of nFeature_SCT
+summary(seurat_object_082323@meta.data[["nFeature_SCT"]])
+
+# Unique genes / panel
+(mean(seurat_object_082323@meta.data[["nFeature_SCT"]])/1000)*100
+
+```
+
+## Total / unique genes
+
+```{r}
+# Summary of nCount_SCT
+summary(seurat_object_082323@meta.data[["nCount_SCT"]])
+
+# Average amount of unique genes over total count per cell
+(mean(seurat_object_082323@meta.data[["nCount_SCT"]])/mean(seurat_object_082323@meta.data[["nFeature_SCT"]]))
+
+```
+
+
+# Xenium
+
+## Combine the data
+
+```{r}
+# Vector for the amount of total genes
+nCount_Xenium <- c(`im_325_h _Seurat`@meta.data[["nCount_Xenium"]], `im_326_f _Seurat`@meta.data[["nCount_Xenium"]], `im_327_i _Seurat`@meta.data[["nCount_Xenium"]], `im_328_g _Seurat`@meta.data[["nCount_Xenium"]])
+
+# Vectore for the amount of unique genes
+nFeature_Xenium <- c(`im_325_h _Seurat`@meta.data[["nFeature_Xenium"]], `im_326_f _Seurat`@meta.data[["nFeature_Xenium"]], `im_327_i _Seurat`@meta.data[["nFeature_Xenium"]], `im_328_g _Seurat`@meta.data[["nFeature_Xenium"]])
+
+```
+
+## nCount_Xenium
+
+```{r check for distribution}
+# Histogram
+hist(nCount_Xenium, breaks = 200)
+
+# Make density plots
+plot(density(nCount_Xenium), main = "Density Plot of Xenium", xlab = "Value")
+
+# Do Hartigans' dip test
+dip.test(nCount_Xenium)
+
+```
+
+## nFeature_Xenium
+
+```{r check for distribution}
+# Histogram
+hist(nFeature_Xenium, breaks = 200)
+
+# Make density plots
+plot(density(nFeature_Xenium), main = "Density Plot of Xenium", xlab = "Value")
+
+# Do Hartigans' dip test
+dip.test(nFeature_Xenium)
+
+```
+
+## Unique genes / panel
+
+```{r}
+# Summary of nFeature_Xenium
+summary(nFeature_Xenium)
+
+# Unique genes / panel
+(mean(nFeature_Xenium)/266)*100
+
+```
+
+## Total / unique genes
+
+```{r}
+# Summary of nCount_SCT
+summary(nCount_Xenium)
+
+# Average amount of unique genes over total count per cell
+(mean(nCount_Xenium)/mean(nFeature_Xenium))
+
+```
+
+
